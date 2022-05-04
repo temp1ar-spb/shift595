@@ -1,0 +1,8 @@
+shift595	KEYWORD1
+get KEYWORD2
+getAll  KEYWORD2
+set	KEYWORD2
+setAll  KEYWORD2
+update	KEYWORD2
+setAllLow	KEYWORD2
+setAllHigh	KEYWORD2
