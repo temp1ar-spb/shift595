@@ -5,6 +5,14 @@ shift595::shift595(const uint8_t dataPin, const uint8_t clockPin, const uint8_t 
     _dataPin  = dataPin;
     _latchPin =  latchPin;
     _chipCount =  chipCount;
+    
+    pinMode(clockPin, OUTPUT);
+    pinMode(dataPin, OUTPUT);
+    pinMode(latchPin, OUTPUT);
+
+    WriteP(clockPin, 0);
+    WriteP(dataPin, 0);
+    WriteP(latchPin, 0);
 }
 void shift595::get(const uint8_t pin) { return (_values >> (_chipCount * 8 - pin)) & 1} // pin - from 1 to chipcount*8
 void shift595::getAll() {return _values}
