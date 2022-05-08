@@ -6,11 +6,11 @@ shift595::shift595(const uint8_t dataPin, const uint8_t clockPin, const uint8_t 
     _latchPin =  latchPin;
     _chipCount =  chipCount;
 }
-bool shift595::get(const uint8_t pin) { return (_values >> (_chipCount * 8 - pin)) & 1;} // pin - from 1 to chipcount*8
+bool shift595::get(const uint8_t pin) { return (_values >> (_chipCount * 8 - 1 - pin)) & 1;} // pin - from 0 to chipcount*8 -1
 uint64_t shift595::getAll() {return _values;}
 void shift595::set(const uint8_t pin, bool value) 
 {
-    (value) ? (_values |= (1ul << (_chipCount * 8 - pin))) : (_values &= ~(1ul << (_chipCount * 8 - pin))); //pin - from 1 to chipcount*8
+    (value) ? (_values |= (1ul << (_chipCount * 8 - 1 - pin))) : (_values &= ~(1ul << (_chipCount * 8 - 1 - pin))); //pin - from 0 to chipcount*8 -1
     update();
 }
 void shift595::setAll(uint64_t values) 
