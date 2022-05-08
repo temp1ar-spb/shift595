@@ -5,17 +5,9 @@ shift595::shift595(const uint8_t dataPin, const uint8_t clockPin, const uint8_t 
     _dataPin  = dataPin;
     _latchPin =  latchPin;
     _chipCount =  chipCount;
-    
-    pinMode(clockPin, OUTPUT);
-    pinMode(dataPin, OUTPUT);
-    pinMode(latchPin, OUTPUT);
-
-    WriteP(clockPin, 0);
-    WriteP(dataPin, 0);
-    WriteP(latchPin, 0);
 }
-void shift595::get(const uint8_t pin) { return (_values >> (_chipCount * 8 - pin)) & 1} // pin - from 1 to chipcount*8
-void shift595::getAll() {return _values}
+bool shift595::get(const uint8_t pin) { return (_values >> (_chipCount * 8 - pin)) & 1;} // pin - from 1 to chipcount*8
+uint64_t shift595::getAll() {return _values;}
 void shift595::set(const uint8_t pin, bool value) 
 {
     (value) ? (_values |= (1ul << (_chipCount * 8 - pin))) : (_values &= ~(1ul << (_chipCount * 8 - pin))); //pin - from 1 to chipcount*8
@@ -27,16 +19,16 @@ void shift595::setAll(uint64_t values)
     update();
 }
 void shift595::setAllLow() {
-    j = 1ul;
-    for (int i = 0; i < (_chipcount * 8); i++){
+    uint64_t j = 1ul;
+    for (int i = 0; i < (_chipCount * 8); i++){
         _values &= ~j;
         j <<= 1;
     }
     update();
 }
 void shift595::setAllHigh() {
-    j = 1ul;
-    for (int i = 0; i < (_chipcount * 8); i++){
+    uint64_t j = 1ul;
+    for (int i = 0; i < (_chipCount * 8); i++){
         _values |= j;
         j <<= 1;
     }
@@ -45,8 +37,8 @@ void shift595::setAllHigh() {
 void shift595::update()
 {
     writeP(_latchPin, 0);
-    uint8_t j = 1ul;
-    for (int i = 0; i < (_chipcount * 8); i++) {
+    uint64_t j = 1ul;
+    for (int i = 0; i < (_chipCount * 8); i++) {
         (j & _values) ? writeP(_dataPin, 1) : writeP(_dataPin, 0);
     j <<= 1;
     writeP(_clockPin, 1);
