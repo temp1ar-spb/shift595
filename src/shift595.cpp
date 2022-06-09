@@ -1,10 +1,37 @@
 #include <shift595.h>
 
+
+inline void writePi(uint8_t pin, bool x) {  
+  if (x == 1) {
+    if (pin < 8) PORTD |= 1 << pin;
+    else if (pin < 14) PORTB |= 1 << (pin - 8);
+    else if (pin < 20) PORTC |= 1 << (pin - 14);
+    else return;
+  }
+  else {
+     if (pin < 8) PORTD &= ~(1 << pin);
+    else if (pin < 14) PORTB &= ~(1 << (pin - 8));
+    else if (pin < 20) PORTC &= ~(1 << (pin - 14));
+    else return;
+  }
+  
+}
+
+
 shift595::shift595(const uint8_t dataPin, const uint8_t clockPin, const uint8_t latchPin, const uint8_t chipCount) { // (data, clock, latch, chip amount)
     _clockPin =  clockPin;
     _dataPin  = dataPin;
     _latchPin =  latchPin;
     _chipCount =  chipCount;
+
+    pinMode(_clockPin, OUTPUT);
+    pinMode(_dataPin, OUTPUT);
+    pinMode(_latchPin, OUTPUT);
+
+    // set pins low
+    writePi(_clockPin, 0);
+    writePi(_dataPin, 0);
+    writePi(_latchPin, 1);
 }
 bool shift595::get(const uint8_t pin) { return (_values >> (_chipCount * 8 - 1 - pin)) & 1;} // pin - from 0 to chipcount*8 -1
 uint64_t shift595::getAll() {return _values;}
@@ -36,31 +63,16 @@ void shift595::setAllHigh() {
 }
 void shift595::update()
 {
-    writeP(_latchPin, 0);
+    writePi(_latchPin, 0);
     uint64_t j = 1ul;
     for (int i = 0; i < (_chipCount * 8); i++) {
-        (j & _values) ? writeP(_dataPin, 1) : writeP(_dataPin, 0);
+        (j & _values) ? writePi(_dataPin, 1) : writePi(_dataPin, 0);
     j <<= 1;
-    writeP(_clockPin, 1);
-    writeP(_clockPin, 0);
+    writePi(_clockPin, 1);
+    writePi(_clockPin, 0);
   }  
-  writeP(_latchPin, 1);
+  writePi(_latchPin, 1);
 }
 
 //fastest pin write structure for arduino. make sense for big amount of chips or chips matrix. 
 //101us with classical arduino functions and only 8 with this one
-void writeP(uint8_t pin, bool x) {  
-  if (x == 1) {
-    if (pin < 8) PORTD |= 1 << pin;
-    else if (pin < 14) PORTB |= 1 << (pin - 8);
-    else if (pin < 20) PORTC |= 1 << (pin - 14);
-    else return;
-  }
-  else {
-     if (pin < 8) PORTD &= ~(1 << pin);
-    else if (pin < 14) PORTB &= ~(1 << (pin - 8));
-    else if (pin < 20) PORTC &= ~(1 << (pin - 14));
-    else return;
-  }
-  
-}
